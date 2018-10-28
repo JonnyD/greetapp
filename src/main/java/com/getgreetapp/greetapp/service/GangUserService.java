@@ -39,6 +39,10 @@ public class GangUserService {
         return this.gangUserRepository.findByGroup(groupId);
     }
 
+    public GangUser getByGangAndUser(Long gangId, Long userId) {
+        return this.gangUserRepository.findByGangAndUser(gangId, userId);
+    }
+
     public GangUser save(GangUser gangUser) {
         return this.gangUserRepository.saveAndFlush(gangUser);
     }

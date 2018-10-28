@@ -19,4 +19,7 @@ public interface GangUserRepository extends JpaRepository<GangUser, Long> {
     @Query("select gang_user from GangUser gang_user where gang_id = ?1")
     List<GangUser> findByGroup(Long groupId);
 
+    @Query("select gang_user from GangUser gang_user where gang_id = ?1 and user_id = ?2")
+    GangUser findByGangAndUser(Long gangId, Long userId);
+
 }

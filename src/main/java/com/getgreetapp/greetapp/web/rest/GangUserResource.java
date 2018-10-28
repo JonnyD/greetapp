@@ -85,6 +85,11 @@ public class GangUserResource {
         }
         gangUser.setUser(user);
 
+        GangUser existingGangUser = this.gangUserService.getByGangAndUser(gangUser.getGang().getId(), gangUser.getUser().getId());
+        if (existingGangUser != null) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
         CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userService);
 
         if (canCreateGangUser.isSatisfiedBy(gangUser)) {
