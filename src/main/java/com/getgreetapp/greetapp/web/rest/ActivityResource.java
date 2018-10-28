@@ -2,13 +2,18 @@ package com.getgreetapp.greetapp.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.getgreetapp.greetapp.domain.Activity;
+import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.ActivityRepository;
+import com.getgreetapp.greetapp.repository.UserRepository;
+import com.getgreetapp.greetapp.security.SecurityUtils;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
 import com.getgreetapp.greetapp.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,9 +35,11 @@ public class ActivityResource {
     private static final String ENTITY_NAME = "activity";
 
     private final ActivityRepository activityRepository;
+    private final UserRepository userRepository;
 
-    public ActivityResource(ActivityRepository activityRepository) {
+    public ActivityResource(ActivityRepository activityRepository, UserRepository userRepository) {
         this.activityRepository = activityRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -44,6 +51,7 @@ public class ActivityResource {
      */
     @PostMapping("/activities")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Activity> createActivity(@Valid @RequestBody Activity activity) throws URISyntaxException {
         log.debug("REST request to save Activity : {}", activity);
         if (activity.getId() != null) {
@@ -66,6 +74,7 @@ public class ActivityResource {
      */
     @PutMapping("/activities")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Activity> updateActivity(@Valid @RequestBody Activity activity) throws URISyntaxException {
         log.debug("REST request to update Activity : {}", activity);
         if (activity.getId() == null) {
@@ -84,6 +93,7 @@ public class ActivityResource {
      */
     @GetMapping("/activities")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<Activity> getAllActivities() {
         log.debug("REST request to get all Activities");
         return activityRepository.findAll();
@@ -96,8 +106,16 @@ public class ActivityResource {
      */
     @GetMapping("/activities-by-user/{userId}")
     @Timed
-    public List<Activity> getAllActivitiesByUser(@PathVariable Long userId) {
+    public Object getAllActivitiesByUser(@PathVariable Long userId) {
         log.debug("REST request to get all Activities by user");
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (userId != loggedInUser.getId()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         return activityRepository.findByUser(userId);
     }
 
@@ -113,7 +131,15 @@ public class ActivityResource {
     public ResponseEntity<Activity> getActivity(@PathVariable Long id) {
         log.debug("REST request to get Activity : {}", id);
         Optional<Activity> activity = activityRepository.findById(id);
-        return ResponseUtil.wrapOrNotFound(activity);
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (activity.get().getUser().equals(loggedInUser)) {
+            return ResponseUtil.wrapOrNotFound(activity);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -124,6 +150,7 @@ public class ActivityResource {
      */
     @DeleteMapping("/activities/{id}")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
         log.debug("REST request to delete Activity : {}", id);
 

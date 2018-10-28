@@ -2,13 +2,18 @@ package com.getgreetapp.greetapp.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.getgreetapp.greetapp.domain.Friendship;
+import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.FriendshipRepository;
+import com.getgreetapp.greetapp.repository.UserRepository;
+import com.getgreetapp.greetapp.security.SecurityUtils;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
 import com.getgreetapp.greetapp.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,9 +35,11 @@ public class FriendshipResource {
     private static final String ENTITY_NAME = "friendship";
 
     private final FriendshipRepository friendshipRepository;
+    private final UserRepository userRepository;
 
-    public FriendshipResource(FriendshipRepository friendshipRepository) {
+    public FriendshipResource(FriendshipRepository friendshipRepository, UserRepository userRepository) {
         this.friendshipRepository = friendshipRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -49,11 +56,20 @@ public class FriendshipResource {
         if (friendship.getId() != null) {
             throw new BadRequestAlertException("A new friendship cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        System.out.println(friendship);
-        Friendship result = friendshipRepository.save(friendship);
-        return ResponseEntity.created(new URI("/api/friendships/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (friendship.getUser().getId() == loggedInUser.getId()
+            || friendship.getFriend().getId() == loggedInUser.getId()) {
+            Friendship result = friendshipRepository.save(friendship);
+
+            return ResponseEntity.created(new URI("/api/friendships/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+                .body(result);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -72,10 +88,20 @@ public class FriendshipResource {
         if (friendship.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Friendship result = friendshipRepository.save(friendship);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, friendship.getId().toString()))
-            .body(result);
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (friendship.getUser().getId() == loggedInUser.getId()
+            || friendship.getFriend().getId() == loggedInUser.getId()) {
+            Friendship result = friendshipRepository.save(friendship);
+
+            return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, friendship.getId().toString()))
+                .body(result);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -85,6 +111,7 @@ public class FriendshipResource {
      */
     @GetMapping("/friendships")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<Friendship> getAllFriendships() {
         log.debug("REST request to get all Friendships");
         return friendshipRepository.findAll();
@@ -97,8 +124,16 @@ public class FriendshipResource {
      */
     @GetMapping("/friendships-by-user/{userId}")
     @Timed
-    public List<Friendship> getAllFriendshipsByUser(@PathVariable Long userId) {
+    public Object getAllFriendshipsByUser(@PathVariable Long userId) {
         log.debug("REST request to get all Friendships");
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (userId != loggedInUser.getId()) {
+            return new ResponseEntity(HttpStatus.FORBIDDEN);
+        }
+
         return friendshipRepository.findByUser(userId);
     }
 
@@ -112,8 +147,20 @@ public class FriendshipResource {
     @Timed
     public ResponseEntity<Friendship> getFriendship(@PathVariable Long id) {
         log.debug("REST request to get Friendship : {}", id);
-        Optional<Friendship> friendship = friendshipRepository.findById(id);
-        return ResponseUtil.wrapOrNotFound(friendship);
+
+        Optional<Friendship> optionalFriendship = friendshipRepository.findById(id);
+        Friendship friendship = optionalFriendship.get();
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (friendship.getUser().getId() == loggedInUser.getId()
+            || friendship.getFriend().getId() == loggedInUser.getId()) {
+
+            return ResponseUtil.wrapOrNotFound(optionalFriendship);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -127,7 +174,19 @@ public class FriendshipResource {
     public ResponseEntity<Void> deleteFriendship(@PathVariable Long id) {
         log.debug("REST request to delete Friendship : {}", id);
 
-        friendshipRepository.deleteById(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        Optional<Friendship> optionalFriendship = friendshipRepository.findById(id);
+        Friendship friendship = optionalFriendship.get();
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (friendship.getUser().getId() == loggedInUser.getId()
+            || friendship.getFriend().getId() == loggedInUser.getId()) {
+
+            friendshipRepository.deleteById(id);
+            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 }

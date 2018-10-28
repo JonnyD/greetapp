@@ -3,12 +3,17 @@ package com.getgreetapp.greetapp.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.getgreetapp.greetapp.domain.Gang;
 import com.getgreetapp.greetapp.repository.GangRepository;
+import com.getgreetapp.greetapp.repository.UserRepository;
+import com.getgreetapp.greetapp.specification.rules.CanListGang;
+import com.getgreetapp.greetapp.specification.rules.CanUpdateGang;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
 import com.getgreetapp.greetapp.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,9 +35,11 @@ public class GangResource {
     private static final String ENTITY_NAME = "gang";
 
     private final GangRepository gangRepository;
+    private final UserRepository userRepository;
 
-    public GangResource(GangRepository gangRepository) {
+    public GangResource(GangRepository gangRepository, UserRepository userRepository) {
         this.gangRepository = gangRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -71,10 +78,17 @@ public class GangResource {
         if (gang.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Gang result = gangRepository.save(gang);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, gang.getId().toString()))
-            .body(result);
+
+        CanUpdateGang canUpdateGang = new CanUpdateGang(this.userRepository);
+
+        if (canUpdateGang.isSatisfiedBy(gang)) {
+            Gang result = gangRepository.save(gang);
+            return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, gang.getId().toString()))
+                .body(result);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -84,6 +98,7 @@ public class GangResource {
      */
     @GetMapping("/gangs")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<Gang> getAllGangs() {
         log.debug("REST request to get all Gangs");
         return gangRepository.findAll();
@@ -99,8 +114,16 @@ public class GangResource {
     @Timed
     public ResponseEntity<Gang> getGang(@PathVariable Long id) {
         log.debug("REST request to get Gang : {}", id);
-        Optional<Gang> gang = gangRepository.findById(id);
-        return ResponseUtil.wrapOrNotFound(gang);
+        Optional<Gang> optionalGang = gangRepository.findById(id);
+        Gang gang = optionalGang.get();
+
+        CanListGang canListGang = new CanListGang(this.userRepository);
+
+        if (canListGang.isSatisfiedBy(gang)) {
+            return ResponseUtil.wrapOrNotFound(optionalGang);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -111,6 +134,7 @@ public class GangResource {
      */
     @DeleteMapping("/gangs/{id}")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteGang(@PathVariable Long id) {
         log.debug("REST request to delete Gang : {}", id);
 

@@ -2,13 +2,19 @@ package com.getgreetapp.greetapp.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.getgreetapp.greetapp.domain.GreetInvitation;
+import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.GreetInvitationRepository;
+import com.getgreetapp.greetapp.repository.UserRepository;
+import com.getgreetapp.greetapp.security.SecurityUtils;
+import com.getgreetapp.greetapp.specification.rules.CanCreateUpdateGreetInvitation;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
 import com.getgreetapp.greetapp.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,8 +37,11 @@ public class GreetInvitationResource {
 
     private final GreetInvitationRepository greetInvitationRepository;
 
-    public GreetInvitationResource(GreetInvitationRepository greetInvitationRepository) {
+    private final UserRepository userRepository;
+
+    public GreetInvitationResource(GreetInvitationRepository greetInvitationRepository, UserRepository userRepository) {
         this.greetInvitationRepository = greetInvitationRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -49,10 +58,17 @@ public class GreetInvitationResource {
         if (greetInvitation.getId() != null) {
             throw new BadRequestAlertException("A new greetInvitation cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        GreetInvitation result = greetInvitationRepository.save(greetInvitation);
-        return ResponseEntity.created(new URI("/api/greet-invitations/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+
+        CanCreateUpdateGreetInvitation canCreateUpdateGreetInvitation = new CanCreateUpdateGreetInvitation(this.userRepository);
+
+        if (canCreateUpdateGreetInvitation.isSatisfiedBy(greetInvitation)) {
+            GreetInvitation result = greetInvitationRepository.save(greetInvitation);
+            return ResponseEntity.created(new URI("/api/greet-invitations/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+                .body(result);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -71,10 +87,17 @@ public class GreetInvitationResource {
         if (greetInvitation.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        GreetInvitation result = greetInvitationRepository.save(greetInvitation);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, greetInvitation.getId().toString()))
-            .body(result);
+
+        CanCreateUpdateGreetInvitation canCreateUpdateGreetInvitation = new CanCreateUpdateGreetInvitation(this.userRepository);
+
+        if (canCreateUpdateGreetInvitation.isSatisfiedBy(greetInvitation)) {
+            GreetInvitation result = greetInvitationRepository.save(greetInvitation);
+            return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, greetInvitation.getId().toString()))
+                .body(result);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -84,6 +107,7 @@ public class GreetInvitationResource {
      */
     @GetMapping("/greet-invitations")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<GreetInvitation> getAllGreetInvitations() {
         log.debug("REST request to get all GreetInvitations");
         return greetInvitationRepository.findAll();
@@ -96,8 +120,16 @@ public class GreetInvitationResource {
      */
     @GetMapping("/greet-invitations-by-user/{userId}")
     @Timed
-    public List<GreetInvitation> getAllGreetInvitationsByUser(@PathVariable Long userId) {
+    public Object getAllGreetInvitationsByUser(@PathVariable Long userId) {
         log.debug("REST request to get all GreetInvitations by user");
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (userId != loggedInUser.getId()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         return greetInvitationRepository.findByUser(userId);
     }
 
@@ -123,6 +155,7 @@ public class GreetInvitationResource {
      */
     @DeleteMapping("/greet-invitations/{id}")
     @Timed
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteGreetInvitation(@PathVariable Long id) {
         log.debug("REST request to delete GreetInvitation : {}", id);
 
