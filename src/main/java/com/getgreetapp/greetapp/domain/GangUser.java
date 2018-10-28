@@ -20,6 +20,8 @@ public class GangUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public enum Role {ADMIN, MEMBER}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -93,6 +95,14 @@ public class GangUser implements Serializable {
         this.user = user;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public boolean isAdmin() {
+        return (Role.ADMIN.toString().equals(this.role));
+    }
+
+    public boolean isMember() {
+        return (Role.MEMBER.toString().equals(this.role));
+    }
 
     @Override
     public boolean equals(Object o) {

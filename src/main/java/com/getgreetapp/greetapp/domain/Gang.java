@@ -9,6 +9,7 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A Gang.
@@ -19,6 +20,9 @@ import java.util.Objects;
 public class Gang implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public enum Privacy {PUBLIC, CLOSED, SECRET}
+    public enum MembershipApproval {ANY, ADMIN}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +51,9 @@ public class Gang implements Serializable {
     @NotNull
     @Column(name = "privacy", nullable = false)
     private String privacy;
+
+    @OneToMany(mappedBy = "gang", fetch = FetchType.EAGER)
+    private Set<GangUser> gangUsers;
 
     public Gang() {}
 
@@ -128,6 +135,26 @@ public class Gang implements Serializable {
         return privacy;
     }
 
+    public boolean isClosed() {
+        return (Privacy.CLOSED.toString().equals(this.privacy));
+    }
+
+    public boolean isSecret() {
+        return (Privacy.SECRET.toString().equals(this.privacy));
+    }
+
+    public boolean isPublic() {
+        return (Privacy.PUBLIC.toString().equals(this.privacy));
+    }
+
+    public boolean isAny() {
+        return (MembershipApproval.ANY.toString().equals(this.membershipApproval));
+    }
+
+    public boolean isAdmin() {
+        return (MembershipApproval.ADMIN.toString().equals(this.membershipApproval));
+    }
+
     public Gang privacy(String privacy) {
         this.privacy = privacy;
         return this;
@@ -137,6 +164,15 @@ public class Gang implements Serializable {
         this.privacy = privacy;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+
+    public Set<GangUser> getGangUsers() {
+        return gangUsers;
+    }
+
+    public void setGangUsers(Set<GangUser> gangUsers) {
+        this.gangUsers = gangUsers;
+    }
 
     @Override
     public boolean equals(Object o) {

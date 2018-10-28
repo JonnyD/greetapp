@@ -9,6 +9,7 @@ import javax.validation.constraints.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -20,6 +21,8 @@ import java.util.Objects;
 public class Greet implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public enum Privacy {PUBLIC, FRIENDS_ONLY, SECRET}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +52,9 @@ public class Greet implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties("")
     private Gang gang;
+
+    @OneToMany(mappedBy = "greet", fetch = FetchType.EAGER)
+    private List<GreetInvitation> greetInvitations;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -124,6 +130,18 @@ public class Greet implements Serializable {
         this.privacy = privacy;
     }
 
+    public boolean isPublic() {
+        return (Privacy.PUBLIC.toString().equals(this.privacy));
+    }
+
+    public boolean isFriendsOnly() {
+        return (Privacy.FRIENDS_ONLY.toString().equals(this.privacy));
+    }
+
+    public boolean isSecret() {
+        return (Privacy.SECRET.toString().equals(this.privacy));
+    }
+
     public User getUser() {
         return user;
     }
@@ -150,6 +168,24 @@ public class Greet implements Serializable {
         this.gang = gang;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+
+    public List<GreetInvitation> getGreetInvitations() {
+        return greetInvitations;
+    }
+
+    public void setGreetInvitations(List<GreetInvitation> greetInvitations) {
+        this.greetInvitations = greetInvitations;
+    }
+
+    public boolean isInvited(User user) {
+        for (GreetInvitation invitation : this.greetInvitations) {
+            if (invitation.getUser().equals(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public boolean equals(Object o) {
