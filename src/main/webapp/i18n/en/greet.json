@@ -1,0 +1,28 @@
+
+{
+    "greetappApp": {
+        "greet" : {
+            "home": {
+                "title": "Greets",
+                "createLabel": "Create a new Greet",
+                "createOrEditLabel": "Create or edit a Greet"
+            },
+            "created": "A new Greet is created with identifier {{ param }}",
+            "updated": "A Greet is updated with identifier {{ param }}",
+            "deleted": "A Greet is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Greet {{ id }}?"
+            },
+            "detail": {
+                "title": "Greet"
+            },
+            "title": "Title",
+            "description": "Description",
+            "longitude": "Longitude",
+            "latitude": "Latitude",
+            "privacy": "Privacy",
+            "user": "User",
+            "gang": "Gang"
+        }
+    }
+}

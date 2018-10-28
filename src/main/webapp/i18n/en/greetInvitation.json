@@ -1,0 +1,24 @@
+
+{
+    "greetappApp": {
+        "greetInvitation" : {
+            "home": {
+                "title": "Greet Invitations",
+                "createLabel": "Create a new Greet Invitation",
+                "createOrEditLabel": "Create or edit a Greet Invitation"
+            },
+            "created": "A new Greet Invitation is created with identifier {{ param }}",
+            "updated": "A Greet Invitation is updated with identifier {{ param }}",
+            "deleted": "A Greet Invitation is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Greet Invitation {{ id }}?"
+            },
+            "detail": {
+                "title": "Greet Invitation"
+            },
+            "greetInvitationResponse": "Greet Invitation Response",
+            "greet": "Greet",
+            "user": "User"
+        }
+    }
+}

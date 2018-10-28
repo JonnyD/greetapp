@@ -38,6 +38,13 @@ public class CacheConfiguration {
             cm.createCache(com.getgreetapp.greetapp.domain.User.class.getName(), jcacheConfiguration);
             cm.createCache(com.getgreetapp.greetapp.domain.Authority.class.getName(), jcacheConfiguration);
             cm.createCache(com.getgreetapp.greetapp.domain.User.class.getName() + ".authorities", jcacheConfiguration);
+            cm.createCache(com.getgreetapp.greetapp.domain.Gang.class.getName(), jcacheConfiguration);
+            cm.createCache(com.getgreetapp.greetapp.domain.GangUser.class.getName(), jcacheConfiguration);
+            cm.createCache(com.getgreetapp.greetapp.domain.Greet.class.getName(), jcacheConfiguration);
+            cm.createCache(com.getgreetapp.greetapp.domain.RSVP.class.getName(), jcacheConfiguration);
+            cm.createCache(com.getgreetapp.greetapp.domain.GreetInvitation.class.getName(), jcacheConfiguration);
+            cm.createCache(com.getgreetapp.greetapp.domain.Activity.class.getName(), jcacheConfiguration);
+            cm.createCache(com.getgreetapp.greetapp.domain.Friendship.class.getName(), jcacheConfiguration);
             // jhipster-needle-ehcache-add-entry
         };
     }

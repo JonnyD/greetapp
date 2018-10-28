@@ -1,0 +1,37 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="greetInvitation">
+            <h2><span jhiTranslate="greetappApp.greetInvitation.detail.title">Greet Invitation</span> {{greetInvitation.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="greetappApp.greetInvitation.greetInvitationResponse">Greet Invitation Response</span></dt>
+                <dd>
+                    <span>{{greetInvitation.greetInvitationResponse}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greetInvitation.greet">Greet</span></dt>
+                <dd>
+                    <div *ngIf="greetInvitation.greet">
+                        <a [routerLink]="['/greet', greetInvitation.greet?.id, 'view']">{{greetInvitation.greet?.id}}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greetInvitation.user">User</span></dt>
+                <dd>
+                    {{greetInvitation.user?.id}}
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/greet-invitation', greetInvitation.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

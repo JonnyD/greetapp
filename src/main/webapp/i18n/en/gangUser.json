@@ -1,0 +1,24 @@
+
+{
+    "greetappApp": {
+        "gangUser" : {
+            "home": {
+                "title": "Gang Users",
+                "createLabel": "Create a new Gang User",
+                "createOrEditLabel": "Create or edit a Gang User"
+            },
+            "created": "A new Gang User is created with identifier {{ param }}",
+            "updated": "A Gang User is updated with identifier {{ param }}",
+            "deleted": "A Gang User is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Gang User {{ id }}?"
+            },
+            "detail": {
+                "title": "Gang User"
+            },
+            "role": "Role",
+            "gang": "Gang",
+            "user": "User"
+        }
+    }
+}

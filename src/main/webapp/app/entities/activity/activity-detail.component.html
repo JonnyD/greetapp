@@ -1,0 +1,43 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="activity">
+            <h2><span jhiTranslate="greetappApp.activity.detail.title">Activity</span> {{activity.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="greetappApp.activity.type">Type</span></dt>
+                <dd>
+                    <span>{{activity.type}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.activity.activityComponent">Activity Component</span></dt>
+                <dd>
+                    <span>{{activity.activityComponent}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.activity.objectId">Object Id</span></dt>
+                <dd>
+                    <span>{{activity.objectId}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.activity.message">Message</span></dt>
+                <dd>
+                    <span>{{activity.message}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.activity.user">User</span></dt>
+                <dd>
+                    {{activity.user?.id}}
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/activity', activity.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

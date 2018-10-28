@@ -1,0 +1,241 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="Jonny (generated)" id="1540709036138-1">
+        <createTable tableName="activity">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="activityPK"/>
+            </column>
+            <column name="activity_component" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="jhi_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-2">
+        <createTable tableName="friendship">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="friendshipPK"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="friend_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-3">
+        <createTable tableName="gang">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="gangPK"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="DECIMAL(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="DECIMAL(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="membership_approval" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="privacy" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-4">
+        <createTable tableName="gang_user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="gang_userPK"/>
+            </column>
+            <column name="jhi_role" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gang_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-5">
+        <createTable tableName="greet">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="greetPK"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="latitude" type="DECIMAL(10, 2)"/>
+            <column name="longitude" type="DECIMAL(10, 2)"/>
+            <column name="privacy" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gang_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-6">
+        <createTable tableName="greet_invitation">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="greet_invitationPK"/>
+            </column>
+            <column name="greet_invitation_response" type="VARCHAR(255)"/>
+            <column name="greet_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-7">
+        <createTable tableName="jhi_authority">
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-8">
+        <createTable tableName="jhi_persistent_audit_event">
+            <column autoIncrement="true" name="event_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="jhi_persistent_audit_eventPK"/>
+            </column>
+            <column name="event_date" type="BINARY(255)"/>
+            <column name="event_type" type="VARCHAR(255)"/>
+            <column name="principal" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-9">
+        <createTable tableName="jhi_persistent_audit_evt_data">
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-10">
+        <createTable tableName="jhi_user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="jhi_userPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="BINARY(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="BINARY(255)"/>
+            <column name="activated" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activation_key" type="VARCHAR(20)"/>
+            <column name="email" type="VARCHAR(254)"/>
+            <column name="first_name" type="VARCHAR(50)"/>
+            <column name="image_url" type="VARCHAR(256)"/>
+            <column name="lang_key" type="VARCHAR(6)"/>
+            <column name="last_name" type="VARCHAR(50)"/>
+            <column name="login" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reset_date" type="BINARY(255)"/>
+            <column name="reset_key" type="VARCHAR(20)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-11">
+        <createTable tableName="jhi_user_authority">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authority_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-12">
+        <createTable tableName="rsvp">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="rsvpPK"/>
+            </column>
+            <column name="rsvp_response" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="greet_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-13">
+        <addPrimaryKey columnNames="event_id, name" tableName="jhi_persistent_audit_evt_data"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-14">
+        <addPrimaryKey columnNames="user_id, authority_name" tableName="jhi_user_authority"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-15">
+        <addPrimaryKey columnNames="name" constraintName="jhi_authorityPK" tableName="jhi_authority"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-16">
+        <addUniqueConstraint columnNames="email" constraintName="UC_JHI_USEREMAIL_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-17">
+        <addUniqueConstraint columnNames="login" constraintName="UC_JHI_USERLOGIN_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-18">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="jhi_user_authority" constraintName="FK290okww5jujghp4el5i7mgwu0" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-19">
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="jhi_persistent_audit_evt_data" constraintName="FK2ehnyx2si4tjd2nt4q7y40v8m" deferrable="false" initiallyDeferred="false" referencedColumnNames="event_id" referencedTableName="jhi_persistent_audit_event"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-20">
+        <addForeignKeyConstraint baseColumnNames="authority_name" baseTableName="jhi_user_authority" constraintName="FK4psxl0jtx6nr7rhqbynr6itoc" deferrable="false" initiallyDeferred="false" referencedColumnNames="name" referencedTableName="jhi_authority"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-21">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="greet" constraintName="FK5lde6pcbu4rei2c7pxuxp5kv9" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-22">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="greet_invitation" constraintName="FK5x0t6pin035ja2eo4arxihu1b" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-23">
+        <addForeignKeyConstraint baseColumnNames="greet_id" baseTableName="greet_invitation" constraintName="FK9qx1r9urkpsn7dxg2rkvnyheb" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="greet"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-24">
+        <addForeignKeyConstraint baseColumnNames="gang_id" baseTableName="greet" constraintName="FKbal1ycat5i0ni44mlkc9w290m" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="gang"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-25">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="rsvp" constraintName="FKcq586u939qmfuggh5423d3pa1" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-26">
+        <addForeignKeyConstraint baseColumnNames="gang_id" baseTableName="gang_user" constraintName="FKd9jihg27bl2jj3vhurvx0mgyw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="gang"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-27">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="friendship" constraintName="FKjsskucuka30c2j65nw1oq7hxa" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-28">
+        <addForeignKeyConstraint baseColumnNames="greet_id" baseTableName="rsvp" constraintName="FKk6f07anpvgoege1oqt1gsew3f" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="greet"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-29">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="activity" constraintName="FKnfu2qhiwbk33glukxejn0r41t" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-30">
+        <addForeignKeyConstraint baseColumnNames="friend_id" baseTableName="friendship" constraintName="FKp89y9akcjs13yw3v270f6pg2o" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Jonny (generated)" id="1540709036138-31">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="gang_user" constraintName="FKpox4jtg5g5e922vogpqjpea14" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+</databaseChangeLog>

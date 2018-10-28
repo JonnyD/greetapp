@@ -1,0 +1,24 @@
+
+{
+    "greetappApp": {
+        "rSVP" : {
+            "home": {
+                "title": "RSVPS",
+                "createLabel": "Create a new RSVP",
+                "createOrEditLabel": "Create or edit a RSVP"
+            },
+            "created": "A new RSVP is created with identifier {{ param }}",
+            "updated": "A RSVP is updated with identifier {{ param }}",
+            "deleted": "A RSVP is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete RSVP {{ id }}?"
+            },
+            "detail": {
+                "title": "RSVP"
+            },
+            "rsvpResponse": "Rsvp Response",
+            "greet": "Greet",
+            "user": "User"
+        }
+    }
+}

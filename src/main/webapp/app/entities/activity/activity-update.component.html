@@ -1,0 +1,79 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+            <h2 id="jhi-activity-heading" jhiTranslate="greetappApp.activity.home.createOrEditLabel">Create or edit a Activity</h2>
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+                <div class="form-group" [hidden]="!activity.id">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id"
+                        [(ngModel)]="activity.id" readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="greetappApp.activity.type" for="field_type">Type</label>
+                    <input type="text" class="form-control" name="type" id="field_type"
+                        [(ngModel)]="activity.type" required/>
+                    <div [hidden]="!(editForm.controls.type?.dirty && editForm.controls.type?.invalid)">
+                        <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.type?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="greetappApp.activity.activityComponent" for="field_activityComponent">Activity Component</label>
+                    <input type="text" class="form-control" name="activityComponent" id="field_activityComponent"
+                        [(ngModel)]="activity.activityComponent" required/>
+                    <div [hidden]="!(editForm.controls.activityComponent?.dirty && editForm.controls.activityComponent?.invalid)">
+                        <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.activityComponent?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="greetappApp.activity.objectId" for="field_objectId">Object Id</label>
+                    <input type="number" class="form-control" name="objectId" id="field_objectId"
+                        [(ngModel)]="activity.objectId" required/>
+                    <div [hidden]="!(editForm.controls.objectId?.dirty && editForm.controls.objectId?.invalid)">
+                        <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.objectId?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.controls.objectId?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="greetappApp.activity.message" for="field_message">Message</label>
+                    <input type="text" class="form-control" name="message" id="field_message"
+                        [(ngModel)]="activity.message" required/>
+                    <div [hidden]="!(editForm.controls.message?.dirty && editForm.controls.message?.invalid)">
+                        <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.message?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="greetappApp.activity.user" for="field_user">User</label>
+                    <select class="form-control" id="field_user" name="user" [(ngModel)]="activity.user" >
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="userOption.id === activity.user?.id ? activity.user : userOption" *ngFor="let userOption of users; trackBy: trackUserById">{{userOption.id}}</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
+                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+                <button type="submit" id="save-entity" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

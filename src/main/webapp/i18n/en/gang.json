@@ -1,0 +1,27 @@
+
+{
+    "greetappApp": {
+        "gang" : {
+            "home": {
+                "title": "Gangs",
+                "createLabel": "Create a new Gang",
+                "createOrEditLabel": "Create or edit a Gang"
+            },
+            "created": "A new Gang is created with identifier {{ param }}",
+            "updated": "A Gang is updated with identifier {{ param }}",
+            "deleted": "A Gang is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Gang {{ id }}?"
+            },
+            "detail": {
+                "title": "Gang"
+            },
+            "name": "Name",
+            "description": "Description",
+            "longitude": "Longitude",
+            "latitude": "Latitude",
+            "membershipApproval": "Membership Approval",
+            "privacy": "Privacy"
+        }
+    }
+}

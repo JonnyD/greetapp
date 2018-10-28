@@ -1,0 +1,37 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="rSVP">
+            <h2><span jhiTranslate="greetappApp.rSVP.detail.title">RSVP</span> {{rSVP.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="greetappApp.rSVP.rsvpResponse">Rsvp Response</span></dt>
+                <dd>
+                    <span>{{rSVP.rsvpResponse}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.rSVP.greet">Greet</span></dt>
+                <dd>
+                    <div *ngIf="rSVP.greet">
+                        <a [routerLink]="['/greet', rSVP.greet?.id, 'view']">{{rSVP.greet?.id}}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.rSVP.user">User</span></dt>
+                <dd>
+                    {{rSVP.user?.id}}
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/rsvp', rSVP.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

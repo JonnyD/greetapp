@@ -1,0 +1,53 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="greet">
+            <h2><span jhiTranslate="greetappApp.greet.detail.title">Greet</span> {{greet.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="greetappApp.greet.title">Title</span></dt>
+                <dd>
+                    <span>{{greet.title}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greet.description">Description</span></dt>
+                <dd>
+                    <span>{{greet.description}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greet.longitude">Longitude</span></dt>
+                <dd>
+                    <span>{{greet.longitude}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greet.latitude">Latitude</span></dt>
+                <dd>
+                    <span>{{greet.latitude}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greet.privacy">Privacy</span></dt>
+                <dd>
+                    <span>{{greet.privacy}}</span>
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greet.user">User</span></dt>
+                <dd>
+                    {{greet.user?.id}}
+                </dd>
+                <dt><span jhiTranslate="greetappApp.greet.gang">Gang</span></dt>
+                <dd>
+                    <div *ngIf="greet.gang">
+                        <a [routerLink]="['/gang', greet.gang?.id, 'view']">{{greet.gang?.id}}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/greet', greet.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>
