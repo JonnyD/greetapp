@@ -94,6 +94,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @BatchSize(size = 20)
     private Set<Authority> authorities = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<GangUser> gangUsers;
+
     public User() {}
 
     public Long getId() {
@@ -199,6 +202,14 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public Set<GangUser> getGangUsers() {
+        return gangUsers;
+    }
+
+    public void setGangUsers(Set<GangUser> gangUsers) {
+        this.gangUsers = gangUsers;
     }
 
     @Override

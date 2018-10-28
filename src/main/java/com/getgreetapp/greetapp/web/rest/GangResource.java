@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.getgreetapp.greetapp.domain.Gang;
 import com.getgreetapp.greetapp.repository.GangRepository;
 import com.getgreetapp.greetapp.repository.UserRepository;
+import com.getgreetapp.greetapp.service.GangService;
 import com.getgreetapp.greetapp.specification.rules.CanListGang;
 import com.getgreetapp.greetapp.specification.rules.CanUpdateGang;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
@@ -34,11 +35,11 @@ public class GangResource {
 
     private static final String ENTITY_NAME = "gang";
 
-    private final GangRepository gangRepository;
+    private final GangService gangService;
     private final UserRepository userRepository;
 
-    public GangResource(GangRepository gangRepository, UserRepository userRepository) {
-        this.gangRepository = gangRepository;
+    public GangResource(GangService gangService, UserRepository userRepository) {
+        this.gangService = gangService;
         this.userRepository = userRepository;
     }
 
@@ -56,7 +57,7 @@ public class GangResource {
         if (gang.getId() != null) {
             throw new BadRequestAlertException("A new gang cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Gang result = gangRepository.save(gang);
+        Gang result = gangService.save(gang);
         return ResponseEntity.created(new URI("/api/gangs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -82,7 +83,7 @@ public class GangResource {
         CanUpdateGang canUpdateGang = new CanUpdateGang(this.userRepository);
 
         if (canUpdateGang.isSatisfiedBy(gang)) {
-            Gang result = gangRepository.save(gang);
+            Gang result = gangService.save(gang);
             return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, gang.getId().toString()))
                 .body(result);
@@ -101,7 +102,19 @@ public class GangResource {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<Gang> getAllGangs() {
         log.debug("REST request to get all Gangs");
-        return gangRepository.findAll();
+        return gangService.findAll();
+    }
+
+    /**
+     * GET  /gangs-by-user/:userId : get all the gangs by user.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of gangs in body
+     */
+    @GetMapping("/gangs-by-user/{userId}")
+    @Timed
+    public List<Gang> getAllGangsByUser(@PathVariable Long userId) {
+        log.debug("REST request to get all Gangs");
+        return gangService.getByUser(userId);
     }
 
     /**
@@ -114,7 +127,7 @@ public class GangResource {
     @Timed
     public ResponseEntity<Gang> getGang(@PathVariable Long id) {
         log.debug("REST request to get Gang : {}", id);
-        Optional<Gang> optionalGang = gangRepository.findById(id);
+        Optional<Gang> optionalGang = gangService.getById(id);
         Gang gang = optionalGang.get();
 
         CanListGang canListGang = new CanListGang(this.userRepository);
@@ -138,7 +151,7 @@ public class GangResource {
     public ResponseEntity<Void> deleteGang(@PathVariable Long id) {
         log.debug("REST request to delete Gang : {}", id);
 
-        gangRepository.deleteById(id);
+        gangService.deleteById(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }
