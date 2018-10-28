@@ -1,8 +1,10 @@
 package com.getgreetapp.greetapp.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.getgreetapp.greetapp.domain.Gang;
 import com.getgreetapp.greetapp.domain.GangUser;
+import com.getgreetapp.greetapp.domain.NearbyGang;
 import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
@@ -21,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -116,6 +119,19 @@ public class GangResource {
     public List<Gang> getAllGangs() {
         log.debug("REST request to get all Gangs");
         return gangService.findAll();
+    }
+
+    /**
+     * GET  /get-nearby-gangs : get all the gangs.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of gangs in body
+     */
+    @GetMapping("/get-nearby-gangs")
+    @Timed
+    public List<NearbyGang> getNearbyGangs() {
+        log.debug("REST request to get nearby gangs");
+        List<NearbyGang> nearbyGangs = gangService.getNearbyGangs(45.55, 45.55, 25);
+        return nearbyGangs;
     }
 
     /**
