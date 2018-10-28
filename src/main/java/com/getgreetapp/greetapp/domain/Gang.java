@@ -1,5 +1,6 @@
 package com.getgreetapp.greetapp.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -52,6 +53,7 @@ public class Gang implements Serializable {
     @Column(name = "privacy", nullable = false)
     private String privacy;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "gang", fetch = FetchType.EAGER)
     private Set<GangUser> gangUsers;
 
@@ -135,22 +137,27 @@ public class Gang implements Serializable {
         return privacy;
     }
 
+    @JsonIgnore
     public boolean isClosed() {
         return (Privacy.CLOSED.toString().equals(this.privacy));
     }
 
+    @JsonIgnore
     public boolean isSecret() {
         return (Privacy.SECRET.toString().equals(this.privacy));
     }
 
+    @JsonIgnore
     public boolean isPublic() {
         return (Privacy.PUBLIC.toString().equals(this.privacy));
     }
 
+    @JsonIgnore
     public boolean isAny() {
         return (MembershipApproval.ANY.toString().equals(this.membershipApproval));
     }
 
+    @JsonIgnore
     public boolean isAdmin() {
         return (MembershipApproval.ADMIN.toString().equals(this.membershipApproval));
     }

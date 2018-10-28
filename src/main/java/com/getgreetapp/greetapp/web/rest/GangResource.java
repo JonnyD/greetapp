@@ -2,9 +2,12 @@ package com.getgreetapp.greetapp.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.getgreetapp.greetapp.domain.Gang;
-import com.getgreetapp.greetapp.repository.GangRepository;
+import com.getgreetapp.greetapp.domain.GangUser;
+import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.UserRepository;
+import com.getgreetapp.greetapp.security.SecurityUtils;
 import com.getgreetapp.greetapp.service.GangService;
+import com.getgreetapp.greetapp.service.GangUserService;
 import com.getgreetapp.greetapp.specification.rules.CanListGang;
 import com.getgreetapp.greetapp.specification.rules.CanUpdateGang;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
@@ -36,10 +39,14 @@ public class GangResource {
     private static final String ENTITY_NAME = "gang";
 
     private final GangService gangService;
+    private final GangUserService gangUserService;
     private final UserRepository userRepository;
 
-    public GangResource(GangService gangService, UserRepository userRepository) {
+    public GangResource(GangService gangService,
+                        UserRepository userRepository,
+                        GangUserService gangUserService) {
         this.gangService = gangService;
+        this.gangUserService = gangUserService;
         this.userRepository = userRepository;
     }
 
@@ -58,6 +65,12 @@ public class GangResource {
             throw new BadRequestAlertException("A new gang cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Gang result = gangService.save(gang);
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        this.gangUserService.createGangUser(result, loggedInUser, GangUser.Role.ADMIN.toString());
+
         return ResponseEntity.created(new URI("/api/gangs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -112,8 +125,16 @@ public class GangResource {
      */
     @GetMapping("/gangs-by-user/{userId}")
     @Timed
-    public List<Gang> getAllGangsByUser(@PathVariable Long userId) {
-        log.debug("REST request to get all Gangs");
+    public Object getAllGangsByUser(@PathVariable Long userId) {
+        log.debug("REST request to get all Gangs by user");
+
+        Optional<String> login = SecurityUtils.getCurrentUserLogin();
+        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+
+        if (loggedInUser.getId() != userId) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         return gangService.getByUser(userId);
     }
 

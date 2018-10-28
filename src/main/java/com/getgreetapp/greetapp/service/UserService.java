@@ -50,6 +50,14 @@ public class UserService {
         this.cacheManager = cacheManager;
     }
 
+    public Optional<User> getById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public Optional<User> getOneByLogin(String login) {
+        return userRepository.findOneByLogin(login);
+    }
+
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
         return userRepository.findOneByActivationKey(key)

@@ -50,6 +50,6 @@ public class GangService {
     }
 
     public void deleteById(Long gangId) {
-        this.userRepository.deleteById(gangId);
+        this.gangRepository.deleteById(gangId);
     }
 }

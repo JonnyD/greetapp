@@ -9,6 +9,7 @@ import com.getgreetapp.greetapp.repository.GreetRepository;
 import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
 import com.getgreetapp.greetapp.service.FriendshipService;
+import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.specification.rules.CanViewGang;
 import com.getgreetapp.greetapp.specification.rules.CanViewGreet;
 import com.getgreetapp.greetapp.specification.rules.CanViewGreetsByGang;
@@ -45,6 +46,8 @@ public class GreetResource {
 
     private final GreetRepository greetRepository;
 
+    private final UserService userService;
+
     private final UserRepository userRepository;
 
     private final GangRepository gangRepository;
@@ -52,10 +55,12 @@ public class GreetResource {
     private final FriendshipService friendshipService;
 
     public GreetResource(GreetRepository greetRepository,
+                         UserService userService,
                          UserRepository userRepository,
                          GangRepository gangRepository,
                          FriendshipService friendshipService) {
         this.greetRepository = greetRepository;
+        this.userService = userService;
         this.userRepository = userRepository;
         this.gangRepository = gangRepository;
         this.friendshipService = friendshipService;
@@ -161,7 +166,7 @@ public class GreetResource {
         Optional<Gang> optionalGang = this.gangRepository.findById(groupId);
         Gang gang = optionalGang.get();
 
-        CanViewGang canViewGang = new CanViewGang(this.userRepository);
+        CanViewGang canViewGang = new CanViewGang(this.userService);
         if (!canViewGang.isSatisfiedBy(gang)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }

@@ -8,6 +8,9 @@ import com.getgreetapp.greetapp.repository.GangRepository;
 import com.getgreetapp.greetapp.repository.GangUserRepository;
 import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
+import com.getgreetapp.greetapp.service.GangService;
+import com.getgreetapp.greetapp.service.GangUserService;
+import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.specification.rules.CanCreateGangUser;
 import com.getgreetapp.greetapp.specification.rules.CanViewGang;
 import com.getgreetapp.greetapp.specification.rules.IsAdminOfGang;
@@ -40,19 +43,19 @@ public class GangUserResource {
 
     private static final String ENTITY_NAME = "gangUser";
 
-    private final GangUserRepository gangUserRepository;
+    private final GangUserService gangUserService;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    private final GangRepository gangRepository;
+    private final GangService gangService;
 
     public GangUserResource(
-        GangUserRepository gangUserRepository,
-        UserRepository userRepository,
-        GangRepository gangRepository) {
-        this.gangUserRepository = gangUserRepository;
-        this.userRepository = userRepository;
-        this.gangRepository = gangRepository;
+        GangUserService gangUserService,
+        UserService userService,
+        GangService gangService) {
+        this.gangUserService = gangUserService;
+        this.userService = userService;
+        this.gangService = gangService;
     }
 
     /**
@@ -70,10 +73,16 @@ public class GangUserResource {
             throw new BadRequestAlertException("A new gangUser cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
-        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userRepository);
+        Gang gang = gangService.getById(gangUser.getGang().getId()).get();
+        gangUser.setGang(gang);
+
+        User user = userService.getById(gangUser.getUser().getId()).get();
+        gangUser.setUser(user);
+
+        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userService);
 
         if (canCreateGangUser.isSatisfiedBy(gangUser)) {
-            GangUser result = gangUserRepository.save(gangUser);
+            GangUser result = gangUserService.save(gangUser);
             return ResponseEntity.created(new URI("/api/gang-users/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
                 .body(result);
@@ -99,10 +108,10 @@ public class GangUserResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userRepository);
+        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userService);
 
         if (canCreateGangUser.isSatisfiedBy(gangUser)) {
-            GangUser result = gangUserRepository.save(gangUser);
+            GangUser result = gangUserService.save(gangUser);
             return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, gangUser.getId().toString()))
                 .body(result);
@@ -121,7 +130,7 @@ public class GangUserResource {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<GangUser> getAllGangUsers() {
         log.debug("REST request to get all GangUsers");
-        return gangUserRepository.findAll();
+        return gangUserService.findAll();
     }
 
     /**
@@ -131,15 +140,15 @@ public class GangUserResource {
      */
     @GetMapping("/gang-users-by-group/{groupId}")
     @Timed
-    public Object getAllGangUsers(@PathVariable Long groupId) {
+    public Object getAllGangUsersByGroup(@PathVariable Long groupId) {
         log.debug("REST request to get all GangUsers for group");
 
-        CanViewGang canViewGang = new CanViewGang(this.userRepository);
-        Optional<Gang> optionalGang = this.gangRepository.findById(groupId);
+        CanViewGang canViewGang = new CanViewGang(this.userService);
+        Optional<Gang> optionalGang = this.gangService.getById(groupId);
         Gang gang = optionalGang.get();
 
         if (canViewGang.isSatisfiedBy(gang)) {
-            return gangUserRepository.findByGroup(groupId);
+            return gangUserService.getByGroup(groupId);
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -155,10 +164,10 @@ public class GangUserResource {
     @Timed
     public ResponseEntity<GangUser> getGangUser(@PathVariable Long id) {
         log.debug("REST request to get GangUser : {}", id);
-        Optional<GangUser> optionalGangUser = gangUserRepository.findById(id);
+        Optional<GangUser> optionalGangUser = gangUserService.getById(id);
         GangUser gangUser = optionalGangUser.get();
 
-        CanViewGang canViewGang = new CanViewGang(this.userRepository);
+        CanViewGang canViewGang = new CanViewGang(this.userService);
 
         if (canViewGang.isSatisfiedBy(gangUser.getGang())) {
             return ResponseUtil.wrapOrNotFound(optionalGangUser);
@@ -178,15 +187,15 @@ public class GangUserResource {
     public ResponseEntity<Void> deleteGangUser(@PathVariable Long id) {
         log.debug("REST request to delete GangUser : {}", id);
 
-        Optional<GangUser> optionalGangUser = gangUserRepository.findById(id);
+        Optional<GangUser> optionalGangUser = gangUserService.getById(id);
         GangUser gangUser = optionalGangUser.get();
 
         Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getOneByLogin(login.get()).get();
 
         IsAdminOfGang isAdminOfGang = new IsAdminOfGang(loggedInUser);
         if (isAdminOfGang.isSatisfiedBy(gangUser.getGang())) {
-            gangUserRepository.deleteById(id);
+            gangUserService.deleteById(id);
             return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
