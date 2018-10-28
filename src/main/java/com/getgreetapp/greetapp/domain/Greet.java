@@ -1,5 +1,6 @@
 package com.getgreetapp.greetapp.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -130,14 +131,17 @@ public class Greet implements Serializable {
         this.privacy = privacy;
     }
 
+    @JsonIgnore
     public boolean isPublic() {
         return (Privacy.PUBLIC.toString().equals(this.privacy));
     }
 
+    @JsonIgnore
     public boolean isFriendsOnly() {
         return (Privacy.FRIENDS_ONLY.toString().equals(this.privacy));
     }
 
+    @JsonIgnore
     public boolean isSecret() {
         return (Privacy.SECRET.toString().equals(this.privacy));
     }

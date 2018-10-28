@@ -3,12 +3,15 @@ package com.getgreetapp.greetapp.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.getgreetapp.greetapp.domain.Gang;
 import com.getgreetapp.greetapp.domain.Greet;
+import com.getgreetapp.greetapp.domain.NearbyGreet;
 import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.GangRepository;
 import com.getgreetapp.greetapp.repository.GreetRepository;
 import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
 import com.getgreetapp.greetapp.service.FriendshipService;
+import com.getgreetapp.greetapp.service.GangService;
+import com.getgreetapp.greetapp.service.GreetService;
 import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.specification.rules.CanViewGang;
 import com.getgreetapp.greetapp.specification.rules.CanViewGreet;
@@ -44,25 +47,25 @@ public class GreetResource {
 
     private static final String ENTITY_NAME = "greet";
 
-    private final GreetRepository greetRepository;
+    private final GreetService greetService;
 
     private final UserService userService;
 
     private final UserRepository userRepository;
 
-    private final GangRepository gangRepository;
+    private final GangService gangService;
 
     private final FriendshipService friendshipService;
 
-    public GreetResource(GreetRepository greetRepository,
+    public GreetResource(GreetService greetService,
                          UserService userService,
                          UserRepository userRepository,
-                         GangRepository gangRepository,
+                         GangService gangService,
                          FriendshipService friendshipService) {
-        this.greetRepository = greetRepository;
+        this.greetService = greetService;
         this.userService = userService;
         this.userRepository = userRepository;
-        this.gangRepository = gangRepository;
+        this.gangService = gangService;
         this.friendshipService = friendshipService;
     }
 
@@ -80,7 +83,7 @@ public class GreetResource {
         if (greet.getId() != null) {
             throw new BadRequestAlertException("A new greet cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Greet result = greetRepository.save(greet);
+        Greet result = greetService.save(greet);
         return ResponseEntity.created(new URI("/api/greets/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -109,7 +112,7 @@ public class GreetResource {
         IsHostOfGreet isHostOfGreet = new IsHostOfGreet(loggedInUser);
 
         if (isHostOfGreet.isSatisfiedBy(greet)) {
-            Greet result = greetRepository.save(greet);
+            Greet result = greetService.save(greet);
             return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, greet.getId().toString()))
                 .body(result);
@@ -129,7 +132,19 @@ public class GreetResource {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<Greet> getAllGreets() {
         log.debug("REST request to get all Greets");
-        return greetRepository.findAll();
+        return greetService.getAll();
+    }
+
+    /**
+     * GET  /get-nearby-greets : get nearby greets.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of greets in body
+     */
+    @GetMapping("/get-nearby-greets")
+    @Timed
+    public List<NearbyGreet> getNearbyGreets() {
+        log.debug("REST request to get nearby Greets");
+        return greetService.getNearbyGreets(54.55, 54.55, 25);
     }
 
     /**
@@ -149,7 +164,7 @@ public class GreetResource {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        return greetRepository.findByUser(userId);
+        return greetService.getByUser(userId);
     }
 
     /**
@@ -161,9 +176,9 @@ public class GreetResource {
     @Timed
     public Object getAllGreetsByGroup(@PathVariable Long groupId) {
         log.debug("REST request to get all Greets by user");
-        List<Greet> greets = greetRepository.findByGroup(groupId);
+        List<Greet> greets = greetService.getByGang(groupId);
 
-        Optional<Gang> optionalGang = this.gangRepository.findById(groupId);
+        Optional<Gang> optionalGang = this.gangService.getById(groupId);
         Gang gang = optionalGang.get();
 
         CanViewGang canViewGang = new CanViewGang(this.userService);
@@ -193,7 +208,7 @@ public class GreetResource {
     @Timed
     public ResponseEntity<Greet> getGreet(@PathVariable Long id) {
         log.debug("REST request to get Greet : {}", id);
-        Optional<Greet> optionalGreet = greetRepository.findById(id);
+        Optional<Greet> optionalGreet = greetService.getById(id);
         Greet greet = optionalGreet.get();
 
         CanViewGreet canViewGreet = new CanViewGreet(this.userRepository, this.friendshipService);
@@ -217,7 +232,7 @@ public class GreetResource {
     public ResponseEntity<Void> deleteGreet(@PathVariable Long id) {
         log.debug("REST request to delete Greet : {}", id);
 
-        greetRepository.deleteById(id);
+        greetService.deleteById(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }
