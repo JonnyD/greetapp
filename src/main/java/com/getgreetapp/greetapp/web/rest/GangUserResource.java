@@ -74,9 +74,15 @@ public class GangUserResource {
         }
 
         Gang gang = gangService.getById(gangUser.getGang().getId()).get();
+        if (gang == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         gangUser.setGang(gang);
 
         User user = userService.getById(gangUser.getUser().getId()).get();
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         gangUser.setUser(user);
 
         CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userService);

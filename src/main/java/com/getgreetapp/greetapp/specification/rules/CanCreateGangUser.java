@@ -23,14 +23,17 @@ public class CanCreateGangUser extends AbstractSpecification<GangUser> {
         IsAdminOfGang isAdminOfGang = new IsAdminOfGang(this.loggedInUser);
         IsMemberOfGang isMemberOfGang = new IsMemberOfGang(this.loggedInUser);
         IsMembershipApprovalAny isMembershipApprovalAny = new IsMembershipApprovalAny();
+        CanSetGangUserAsAdmin canSetGangUserAsAdmin = new CanSetGangUserAsAdmin(this.loggedInUser);
 
         Gang gang = gangUser.getGang();
 
         AbstractSpecification<Gang> composite = isMemberOfGang
             .and(isMembershipApprovalAny);
 
-        return composite
+        boolean value = composite
             .or(isAdminOfGang)
             .isSatisfiedBy(gang);
+
+        return value && canSetGangUserAsAdmin.isSatisfiedBy(gangUser);
     }
 }
