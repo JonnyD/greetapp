@@ -90,7 +90,8 @@ public class GangUserResource {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userService);
+        User loggedInUser = userService.getLoggedInUser();
+        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(loggedInUser);
 
         if (canCreateGangUser.isSatisfiedBy(gangUser)) {
             GangUser result = gangUserService.save(gangUser);
@@ -119,7 +120,8 @@ public class GangUserResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(this.userService);
+        User loggedInUser = userService.getLoggedInUser();
+        CanCreateGangUser canCreateGangUser = new CanCreateGangUser(loggedInUser);
 
         if (canCreateGangUser.isSatisfiedBy(gangUser)) {
             GangUser result = gangUserService.save(gangUser);
@@ -154,7 +156,8 @@ public class GangUserResource {
     public Object getAllGangUsersByGroup(@PathVariable Long groupId) {
         log.debug("REST request to get all GangUsers for group");
 
-        CanViewGang canViewGang = new CanViewGang(this.userService);
+        User loggedInUser = userService.getLoggedInUser();
+        CanViewGang canViewGang = new CanViewGang(loggedInUser);
         Optional<Gang> optionalGang = this.gangService.getById(groupId);
         Gang gang = optionalGang.get();
 
@@ -178,7 +181,8 @@ public class GangUserResource {
         Optional<GangUser> optionalGangUser = gangUserService.getById(id);
         GangUser gangUser = optionalGangUser.get();
 
-        CanViewGang canViewGang = new CanViewGang(this.userService);
+        User loggedInUser = userService.getLoggedInUser();
+        CanViewGang canViewGang = new CanViewGang(loggedInUser);
 
         if (canViewGang.isSatisfiedBy(gangUser.getGang())) {
             return ResponseUtil.wrapOrNotFound(optionalGangUser);
@@ -201,8 +205,7 @@ public class GangUserResource {
         Optional<GangUser> optionalGangUser = gangUserService.getById(id);
         GangUser gangUser = optionalGangUser.get();
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userService.getOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         IsAdminOfGang isAdminOfGang = new IsAdminOfGang(loggedInUser);
         if (isAdminOfGang.isSatisfiedBy(gangUser.getGang())) {

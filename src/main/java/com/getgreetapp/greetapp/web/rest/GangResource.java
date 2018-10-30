@@ -10,6 +10,7 @@ import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
 import com.getgreetapp.greetapp.service.GangService;
 import com.getgreetapp.greetapp.service.GangUserService;
+import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.specification.rules.CanListGang;
 import com.getgreetapp.greetapp.specification.rules.CanUpdateGang;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
@@ -23,7 +24,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -43,14 +43,14 @@ public class GangResource {
 
     private final GangService gangService;
     private final GangUserService gangUserService;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public GangResource(GangService gangService,
-                        UserRepository userRepository,
+                        UserService userService,
                         GangUserService gangUserService) {
         this.gangService = gangService;
         this.gangUserService = gangUserService;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     /**
@@ -69,8 +69,7 @@ public class GangResource {
         }
         Gang result = gangService.save(gang);
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         this.gangUserService.createGangUser(result, loggedInUser, GangUser.Role.ADMIN.toString());
 
@@ -96,7 +95,8 @@ public class GangResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        CanUpdateGang canUpdateGang = new CanUpdateGang(this.userRepository);
+        User loggedInUser = userService.getLoggedInUser();
+        CanUpdateGang canUpdateGang = new CanUpdateGang(loggedInUser);
 
         if (canUpdateGang.isSatisfiedBy(gang)) {
             Gang result = gangService.save(gang);
@@ -144,8 +144,7 @@ public class GangResource {
     public Object getAllGangsByUser(@PathVariable Long userId) {
         log.debug("REST request to get all Gangs by user");
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (loggedInUser.getId() != userId) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -167,7 +166,8 @@ public class GangResource {
         Optional<Gang> optionalGang = gangService.getById(id);
         Gang gang = optionalGang.get();
 
-        CanListGang canListGang = new CanListGang(this.userRepository);
+        User loggedInUser = userService.getLoggedInUser();
+        CanListGang canListGang = new CanListGang(loggedInUser);
 
         if (canListGang.isSatisfiedBy(gang)) {
             return ResponseUtil.wrapOrNotFound(optionalGang);

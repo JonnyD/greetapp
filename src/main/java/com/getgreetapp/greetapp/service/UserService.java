@@ -278,4 +278,9 @@ public class UserService {
         Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE)).evict(user.getLogin());
         Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
     }
+
+    public User getLoggedInUser() {
+        String login = SecurityUtils.getCurrentUserLogin().get();
+        return userRepository.findOneByLogin(login).get();
+    }
 }

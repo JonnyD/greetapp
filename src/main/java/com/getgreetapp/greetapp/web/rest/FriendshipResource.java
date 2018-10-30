@@ -6,6 +6,7 @@ import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.FriendshipRepository;
 import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
+import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
 import com.getgreetapp.greetapp.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -35,11 +36,11 @@ public class FriendshipResource {
     private static final String ENTITY_NAME = "friendship";
 
     private final FriendshipRepository friendshipRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public FriendshipResource(FriendshipRepository friendshipRepository, UserRepository userRepository) {
+    public FriendshipResource(FriendshipRepository friendshipRepository, UserService userService) {
         this.friendshipRepository = friendshipRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     /**
@@ -57,8 +58,7 @@ public class FriendshipResource {
             throw new BadRequestAlertException("A new friendship cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (friendship.getUser().getId() == loggedInUser.getId()
             || friendship.getFriend().getId() == loggedInUser.getId()) {
@@ -89,8 +89,7 @@ public class FriendshipResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (friendship.getUser().getId() == loggedInUser.getId()
             || friendship.getFriend().getId() == loggedInUser.getId()) {
@@ -127,8 +126,7 @@ public class FriendshipResource {
     public Object getAllFriendshipsByUser(@PathVariable Long userId) {
         log.debug("REST request to get all Friendships");
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (userId != loggedInUser.getId()) {
             return new ResponseEntity(HttpStatus.FORBIDDEN);
@@ -151,8 +149,7 @@ public class FriendshipResource {
         Optional<Friendship> optionalFriendship = friendshipRepository.findById(id);
         Friendship friendship = optionalFriendship.get();
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (friendship.getUser().getId() == loggedInUser.getId()
             || friendship.getFriend().getId() == loggedInUser.getId()) {
@@ -177,8 +174,7 @@ public class FriendshipResource {
         Optional<Friendship> optionalFriendship = friendshipRepository.findById(id);
         Friendship friendship = optionalFriendship.get();
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (friendship.getUser().getId() == loggedInUser.getId()
             || friendship.getFriend().getId() == loggedInUser.getId()) {

@@ -2,19 +2,13 @@ package com.getgreetapp.greetapp.specification.rules;
 
 import com.getgreetapp.greetapp.domain.Gang;
 import com.getgreetapp.greetapp.domain.User;
-import com.getgreetapp.greetapp.repository.UserRepository;
-import com.getgreetapp.greetapp.security.SecurityUtils;
-import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.specification.AbstractSpecification;
-
-import java.util.Optional;
 
 public class CanViewGang extends AbstractSpecification<Gang> {
     private User loggedInUser;
 
-    public CanViewGang(UserService userService) {
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        this.loggedInUser = userService.getOneByLogin(login.get()).get();
+    public CanViewGang(User loggedInUser) {
+        this.loggedInUser = loggedInUser;
     }
 
     public boolean isSatisfiedBy(Gang gang) {

@@ -6,6 +6,7 @@ import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.ActivityRepository;
 import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
+import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
 import com.getgreetapp.greetapp.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -35,11 +36,12 @@ public class ActivityResource {
     private static final String ENTITY_NAME = "activity";
 
     private final ActivityRepository activityRepository;
-    private final UserRepository userRepository;
 
-    public ActivityResource(ActivityRepository activityRepository, UserRepository userRepository) {
+    private final UserService userService;
+
+    public ActivityResource(ActivityRepository activityRepository, UserService userService) {
         this.activityRepository = activityRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     /**
@@ -109,11 +111,10 @@ public class ActivityResource {
     public Object getAllActivitiesByUser(@PathVariable Long userId) {
         log.debug("REST request to get all Activities by user");
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (userId != loggedInUser.getId()) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new BadRequestAlertException("You dont have permission to view that resource", ENTITY_NAME, "permission");
         }
 
         return activityRepository.findByUser(userId);
@@ -132,8 +133,7 @@ public class ActivityResource {
         log.debug("REST request to get Activity : {}", id);
         Optional<Activity> activity = activityRepository.findById(id);
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (activity.get().getUser().equals(loggedInUser)) {
             return ResponseUtil.wrapOrNotFound(activity);

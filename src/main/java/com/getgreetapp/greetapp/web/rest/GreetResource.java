@@ -142,9 +142,9 @@ public class GreetResource {
      */
     @GetMapping("/get-nearby-greets")
     @Timed
-    public List<NearbyGreet> getNearbyGreets() {
+    public List<NearbyGreet> getNearbyGreets(Double longitude, Double latitude, int radius) {
         log.debug("REST request to get nearby Greets");
-        return greetService.getNearbyGreets(54.55, 54.55, 25);
+        return greetService.getNearbyGreets(longitude, latitude, radius);
     }
 
     /**

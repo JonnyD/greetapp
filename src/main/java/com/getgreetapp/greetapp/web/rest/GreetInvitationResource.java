@@ -6,6 +6,7 @@ import com.getgreetapp.greetapp.domain.User;
 import com.getgreetapp.greetapp.repository.GreetInvitationRepository;
 import com.getgreetapp.greetapp.repository.UserRepository;
 import com.getgreetapp.greetapp.security.SecurityUtils;
+import com.getgreetapp.greetapp.service.UserService;
 import com.getgreetapp.greetapp.specification.rules.CanCreateUpdateGreetInvitation;
 import com.getgreetapp.greetapp.web.rest.errors.BadRequestAlertException;
 import com.getgreetapp.greetapp.web.rest.util.HeaderUtil;
@@ -37,11 +38,13 @@ public class GreetInvitationResource {
 
     private final GreetInvitationRepository greetInvitationRepository;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public GreetInvitationResource(GreetInvitationRepository greetInvitationRepository, UserRepository userRepository) {
+    public GreetInvitationResource(
+        GreetInvitationRepository greetInvitationRepository,
+        UserService userService) {
         this.greetInvitationRepository = greetInvitationRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     /**
@@ -59,7 +62,8 @@ public class GreetInvitationResource {
             throw new BadRequestAlertException("A new greetInvitation cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
-        CanCreateUpdateGreetInvitation canCreateUpdateGreetInvitation = new CanCreateUpdateGreetInvitation(this.userRepository);
+        User loggedInUser = userService.getLoggedInUser();
+        CanCreateUpdateGreetInvitation canCreateUpdateGreetInvitation = new CanCreateUpdateGreetInvitation(loggedInUser);
 
         if (canCreateUpdateGreetInvitation.isSatisfiedBy(greetInvitation)) {
             GreetInvitation result = greetInvitationRepository.save(greetInvitation);
@@ -88,7 +92,8 @@ public class GreetInvitationResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        CanCreateUpdateGreetInvitation canCreateUpdateGreetInvitation = new CanCreateUpdateGreetInvitation(this.userRepository);
+        User loggedInUser = userService.getLoggedInUser();
+        CanCreateUpdateGreetInvitation canCreateUpdateGreetInvitation = new CanCreateUpdateGreetInvitation(loggedInUser);
 
         if (canCreateUpdateGreetInvitation.isSatisfiedBy(greetInvitation)) {
             GreetInvitation result = greetInvitationRepository.save(greetInvitation);
@@ -123,8 +128,7 @@ public class GreetInvitationResource {
     public Object getAllGreetInvitationsByUser(@PathVariable Long userId) {
         log.debug("REST request to get all GreetInvitations by user");
 
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        User loggedInUser = userRepository.findOneByLogin(login.get()).get();
+        User loggedInUser = userService.getLoggedInUser();
 
         if (userId != loggedInUser.getId()) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
